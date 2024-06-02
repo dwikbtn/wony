@@ -9,26 +9,20 @@ const snap = new midtransClient.Snap({
 
 export const createTransaction = async (orderId, amount, items, paymentInfo) => {
   try {
-    const transactionDetails = {
-      transaction_details: {
-        order_id: orderId,
-        gross_amount: amount
+    const fetchDirectUrl = fetch('http://localhost:3000/checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
       },
-      item_details: items.map((item) => ({
-        id: item.productId,
-        price: item.price,
-        quantity: item.quantity,
-        name: item.name
-      })),
-      customer_details: {
-        email: paymentInfo.email,
-        first_name: paymentInfo.name,
-        ticket: paymentInfo.ticket
-      }
-    }
-
-    const transaction = await snap.createTransaction(transactionDetails)
-    return transaction.redirect_url
+      body: JSON.stringify({
+        orderId,
+        amount,
+        items,
+        paymentInfo
+      })
+    })
+    const response = await fetchDirectUrl()
+    return response.redirect_url
   } catch (error) {
     console.error('Failed to create transaction:', error)
     throw error
